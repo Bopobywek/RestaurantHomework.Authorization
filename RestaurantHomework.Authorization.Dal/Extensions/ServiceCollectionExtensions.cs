@@ -13,6 +13,7 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services)
     {
         services.AddScoped<IUsersRepository, UsersRepository>();
+        services.AddScoped<ISessionsRepository, SessionsRepository>();
         return services;
     }
     

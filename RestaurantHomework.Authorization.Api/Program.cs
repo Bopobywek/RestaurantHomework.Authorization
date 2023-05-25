@@ -13,7 +13,7 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services
-    .AddBll()
+    .AddBll(builder.Configuration)
     .AddDalInfrastructure(builder.Configuration)
     .AddDalRepositories();
 

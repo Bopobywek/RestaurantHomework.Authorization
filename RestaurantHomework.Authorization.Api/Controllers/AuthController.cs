@@ -35,8 +35,11 @@ public class AuthController
     
     [HttpPost]
     [Route("login")]
-    public async void Login()
+    public async Task<LoginResponse> Login(LoginRequest request)
     {
-        
+        var command = new LoginUserCommand(request.Email, request.Password);
+        var result = await _mediator.Send(command);
+
+        return new LoginResponse("Ok", result.Token);
     }
 }

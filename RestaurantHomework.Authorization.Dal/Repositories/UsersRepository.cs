@@ -15,12 +15,14 @@ public class UsersRepository : BaseRepository, IUsersRepository
     public async Task Add(UserEntity userEntity, CancellationToken token)
     {
         const string sqlInsert = @"insert into users (username, email, password_hash, role)
-select username, email, password_hash, role
-  from UNNEST(@UserEntity) ";
+values (@Username, @Email, @PasswordHash, @Role)";
         
         var sqlInsertParams = new
         {
-            UserEntity = new List<UserEntity> {userEntity}
+            userEntity.Username,
+            userEntity.Email,
+            userEntity.PasswordHash,
+            userEntity.Role
         };
 
         await using var connection = await GetAndOpenConnection();
