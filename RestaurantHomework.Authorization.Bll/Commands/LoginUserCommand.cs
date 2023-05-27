@@ -6,9 +6,11 @@ using MediatR;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using RestaurantHomework.Authorization.Bll.Exceptions;
 using RestaurantHomework.Authorization.Bll.Models;
 using RestaurantHomework.Authorization.Bll.Options;
 using RestaurantHomework.Authorization.Bll.Services.Interfaces;
+using RestaurantHomework.Authorization.Bll.Utils;
 using RestaurantHomework.Authorization.Dal.Entities;
 using RestaurantHomework.Authorization.Dal.Repositories.Interfaces;
 
@@ -32,37 +34,24 @@ public class LoginUserHandler : IRequestHandler<LoginUserCommand, LoginUserResul
         var user = await _usersRepository.QueryByEmail(request.Email, cancellationToken);
         if (user == null)
         {
-            throw new ArgumentException();
+            throw new IncorrectDataException();
         }
 
-        if (user.PasswordHash != GetPasswordHash(request.Password))
+        if (user.PasswordHash != PasswordHasher.HashPassword(request.Password))
         {
+            throw new IncorrectDataException();
         }
 
         var model = new CreateSessionModel(
             new Claim[]
             {
                 new(ClaimTypes.NameIdentifier, user.Username),
+                new(ClaimTypes.Role,user.Role)
             },
             user.Id);
 
         var token = await _sessionService.CreateSession(model, cancellationToken);
 
         return new LoginUserResult(token);
-    }
-
-    private static string GetPasswordHash(string password)
-    {
-        // https://learn.microsoft.com/en-us/aspnet/core/security/data-protection/consumer-apis/password-hashing?view=aspnetcore-7.0
-        byte[] salt = Enumerable.Range(0, 16).Select(x => (byte) x).ToArray();
-
-        string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-            password: password,
-            salt: salt,
-            prf: KeyDerivationPrf.HMACSHA256,
-            iterationCount: 100000,
-            numBytesRequested: 32));
-
-        return hashed;
     }
 }

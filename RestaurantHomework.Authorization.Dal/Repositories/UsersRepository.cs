@@ -33,6 +33,23 @@ values (@Username, @Email, @PasswordHash, @Role)";
                 cancellationToken: token));
     }
 
+    public async Task Update(UserEntity userEntity, CancellationToken cancellationToken)
+    {
+        const string sqlUpdate = @"update users set role = @Role where id = @Id";
+        
+        var sqlUpdateParams = new
+        {
+            userEntity.Role
+        };
+        
+        await using var connection = await GetAndOpenConnection();
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                sqlUpdate,
+                sqlUpdateParams,
+                cancellationToken: cancellationToken));
+    }
+
     public async Task<UserEntity?> QueryByEmail(string email, CancellationToken token)
     {
         const string sqlQuery = @"

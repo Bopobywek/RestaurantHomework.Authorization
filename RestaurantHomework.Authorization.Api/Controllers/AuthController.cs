@@ -2,10 +2,12 @@
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using RestaurantHomework.Authorization.Api.ActionFilters;
 using RestaurantHomework.Authorization.Api.Requests;
 using RestaurantHomework.Authorization.Api.Responses;
 using RestaurantHomework.Authorization.Api.Validators;
 using RestaurantHomework.Authorization.Bll.Commands;
+using RestaurantHomework.Authorization.Bll.Queries;
 
 namespace RestaurantHomework.Authorization.Api.Controllers;
 
@@ -22,6 +24,7 @@ public class AuthController
 
     [HttpPost]
     [Route("register")]
+    [AuthExceptionFilter]
     public async Task<RegisterResponse> Register(RegisterRequest request)
     {
         var validator = new RegisterRequestValidator();
@@ -32,14 +35,42 @@ public class AuthController
         
         return new RegisterResponse(Message: "Ok");
     }
+
+    [HttpPost]
+    [Route("set-role")]
+    [AuthExceptionFilter]
+    public async Task<string> SetRole(SetRoleRequest request)
+    {
+        var command = new UpdateRoleCommand(request.Email, request.Role);
+        await _mediator.Send(command);
+        
+        return "Ok";
+    }
     
     [HttpPost]
     [Route("login")]
+    [AuthExceptionFilter]
     public async Task<LoginResponse> Login(LoginRequest request)
     {
         var command = new LoginUserCommand(request.Email, request.Password);
         var result = await _mediator.Send(command);
 
         return new LoginResponse("Ok", result.Token);
+    }
+    
+    [HttpGet]
+    [Route("get-info")]
+    [AuthExceptionFilter]
+    public async Task<GetInfoResponse> GetInfo([FromQuery] string token)
+    {
+        var command = new GetUserInfoQuery(token);
+        var result = await _mediator.Send(command);
+
+        return new GetInfoResponse(
+            result.Username,
+            result.Email,
+            result.Role,
+            result.CreatedAt,
+            result.UpdatedAt);
     }
 }

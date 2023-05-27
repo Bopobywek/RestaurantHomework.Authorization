@@ -1,6 +1,8 @@
 ﻿using System.Security.Cryptography;
 using MediatR;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using RestaurantHomework.Authorization.Bll.Exceptions;
+using RestaurantHomework.Authorization.Bll.Utils;
 using RestaurantHomework.Authorization.Dal.Entities;
 using RestaurantHomework.Authorization.Dal.Repositories.Interfaces;
 
@@ -23,14 +25,14 @@ public class RegisterUserHandler : IRequestHandler<RegisterUserCommand, Unit>
         var searchByEmail = await _usersRepository.QueryByEmail(request.Email, cancellationToken);
         if (searchByUsername != null || searchByEmail != null)
         {
-            throw new ArgumentException("User already exists");
+            throw new UserAlreadyExistsException();
         }
         
         var user = new UserEntity
         {
             Username = request.Username,
             Email = request.Email,
-            PasswordHash = GetPasswordHash(request.Password),
+            PasswordHash = PasswordHasher.HashPassword(request.Password),
             Role = "customer"
         };
         
@@ -39,18 +41,5 @@ public class RegisterUserHandler : IRequestHandler<RegisterUserCommand, Unit>
         return Unit.Value;
     }
 
-    private static string GetPasswordHash(string password)
-    {
-        // https://learn.microsoft.com/en-us/aspnet/core/security/data-protection/consumer-apis/password-hashing?view=aspnetcore-7.0
-        byte[] salt = Enumerable.Range(0, 16).Select(x => (byte)x).ToArray();
-        
-        string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-            password: password,
-            salt: salt,
-            prf: KeyDerivationPrf.HMACSHA256,
-            iterationCount: 100000,
-            numBytesRequested: 32));
-
-        return hashed;
-    }
+    
 }
