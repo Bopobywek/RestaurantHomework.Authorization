@@ -23,13 +23,13 @@ public class GetUserInfoQueryHandler : IRequestHandler<GetUserInfoQuery, GetUser
         var session = await _sessionsRepository.Query(request.Token, cancellationToken);
         if (session is null)
         {
-            throw new InvalidTokenException();
+            throw new InvalidTokenException("Передан несуществующий токен");
         }
 
         var user = await _usersRepository.QueryById(session.UserId, cancellationToken);
         if (user is null)
         {
-            throw new IncorrectDataException();
+            throw new IncorrectDataException("По данному токену не удалось найти пользователя");
         }
 
         return new GetUserInfoQueryResult(user.Username, user.Email, user.Role, user.CreatedAt, user.UpdatedAt);

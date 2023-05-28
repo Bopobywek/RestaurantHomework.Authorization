@@ -1,4 +1,6 @@
-﻿namespace RestaurantHomework.Authorization.Dal.Entities;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace RestaurantHomework.Authorization.Dal.Entities;
 
 public class UserEntity
 {

@@ -24,7 +24,7 @@ public class UpdateRoleCommandHandle : IRequestHandler<UpdateRoleCommand, Unit>
         var searchByEmail = await _usersRepository.QueryByEmail(request.Email, cancellationToken);
         if (searchByEmail is null)
         {
-            throw new IncorrectDataException();
+            throw new IncorrectDataException("Не удалось найти пользователя с заданным email");
         }
 
         var user = new UserEntity

@@ -34,12 +34,14 @@ public class LoginUserHandler : IRequestHandler<LoginUserCommand, LoginUserResul
         var user = await _usersRepository.QueryByEmail(request.Email, cancellationToken);
         if (user == null)
         {
-            throw new IncorrectDataException();
+            throw new IncorrectDataException("Введены неверные данные: пользователя либо не существует," +
+                                             " либо пароль указан неверно");
         }
 
         if (user.PasswordHash != PasswordHasher.HashPassword(request.Password))
         {
-            throw new IncorrectDataException();
+            throw new IncorrectDataException("Введены неверные данные: пользователя либо не существует," +
+                                             " либо пароль указан неверно");
         }
 
         var model = new CreateSessionModel(

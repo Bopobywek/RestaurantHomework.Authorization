@@ -1,4 +1,6 @@
+using System.Net;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Diagnostics;
 using RestaurantHomework.Authorization.Api.NamingPolicies;
 using RestaurantHomework.Authorization.Bll.Extensions;
 using RestaurantHomework.Authorization.Dal.Extensions;
@@ -31,6 +33,17 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseExceptionHandler(c => c.Run(async context =>
+{
+    var exception = context.Features.Get<IExceptionHandlerPathFeature>()?.Error;
+    var response = new { ErrorMessage = exception?.Message };
+
+    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+
+    await context.Response.WriteAsJsonAsync(response);
+
+}));
 
 app.UseHttpsRedirection();
 

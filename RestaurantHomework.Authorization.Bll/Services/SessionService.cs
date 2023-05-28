@@ -26,8 +26,8 @@ public class SessionService : ISessionService
     {
         var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtOptions.Value.Secret));
 
-        var issuer = "http://mysite.com";
-        var audience = "http://myaudience.com";
+        var issuer = _jwtOptions.Value.Issuer;
+        var audience = _jwtOptions.Value.Audience;
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var expires = DateTime.UtcNow.AddSeconds(_jwtOptions.Value.TokenLifetime);
@@ -44,6 +44,9 @@ public class SessionService : ISessionService
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
         var stringToken = tokenHandler.WriteToken(token);
+
+        using var transaction = _sessionsRepository.CreateTransactionScope();
+        
         await _sessionsRepository.Add(
             new SessionEntity
             {
@@ -53,11 +56,8 @@ public class SessionService : ISessionService
             },
             cancellationToken);
         
+        transaction.Complete();
+        
         return stringToken;
-    }
-
-    public bool ValidateToken()
-    {
-        throw new NotImplementedException();
     }
 }

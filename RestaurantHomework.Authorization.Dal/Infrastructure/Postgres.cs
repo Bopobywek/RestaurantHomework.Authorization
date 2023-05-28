@@ -11,15 +11,12 @@ namespace RestaurantHomework.Authorization.Dal.Infrastructure;
 public static class Postgres
 {
     private static readonly INpgsqlNameTranslator Translator = new NpgsqlSnakeCaseNameTranslator();
-
+    
     public static void MapCompositeTypes()
     {
-        var mapper = NpgsqlConnection.GlobalTypeMapper;
         Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
-
-        mapper.MapComposite<UserEntity>("users_v1", Translator);
     }
-
+    
     public static void AddMigrations(IServiceCollection services)
     {
         services.AddFluentMigratorCore()

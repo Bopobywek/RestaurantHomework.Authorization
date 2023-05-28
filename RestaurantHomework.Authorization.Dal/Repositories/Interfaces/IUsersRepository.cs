@@ -2,7 +2,7 @@
 
 namespace RestaurantHomework.Authorization.Dal.Repositories.Interfaces;
 
-public interface IUsersRepository
+public interface IUsersRepository : IDbRepository
 {
     Task Add(UserEntity userEntity, CancellationToken token);
     Task Update(UserEntity userEntity, CancellationToken cancellationToken);

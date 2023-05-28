@@ -6,5 +6,4 @@ namespace RestaurantHomework.Authorization.Bll.Services.Interfaces;
 public interface ISessionService
 {
     Task<string> CreateSession(CreateSessionModel model, CancellationToken cancellationToken);
-    bool ValidateToken();
 }
