@@ -1,12 +1,32 @@
 ﻿version: "3"
+networks:
+  dev:
+    driver: bridge
+    
 services:
-  restaurant-local:
+  authorization_server:
+    image: auth-server
+    container_name: auth-server
+    restart: on-failure
+    depends_on:
+      - restaurant_local
+    build:
+      context: .
+      dockerfile: "Dockerfile"
+    ports:
+      - "8080:80"
+    networks:
+      - dev
+    
+  restaurant_local:
     image: postgres
     restart: always
-    container_name: restaurant-local
+    container_name: psql
     environment:
       POSTGRES_USER: "postgres"
       POSTGRES_DB: "restaurant"
       POSTGRES_PASSWORD: "123456"
     ports:
-      - "15432:5432"
+      - "5432"
+    networks:
+      - dev
